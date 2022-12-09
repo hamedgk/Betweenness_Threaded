@@ -13,12 +13,11 @@ struct PackedData {
 DWORD WINAPI calculateBetweenness(LPVOID Param)
 {
 	auto global_data = (PackedData*) Param;
-	std::cout << "hello thread" << std::endl;
 	auto cpu_count = WindowsHelpers::systemCpuCount();
 
 	auto sequence_generator = SequenceGenerator();
 	auto match_engine = MatchEngine();
-	for (int i = 0; i < 10000; ++i)
+	for (int i = 0; i < 100000; ++i)
 	{
 		int* sg = sequence_generator.shuffleSequence();
 		//free memory in matchAgainst method function
@@ -85,7 +84,7 @@ int main()
 
 	//compare results
 	for (int i = 0; i < cpu_count; ++i) {
-		std::cout << "process ID: " << results[i].threadID << std::endl;
+		std::cout << "thread ID: " << results[i].threadID << std::endl;
 		std::cout << "score: " << results[i].sequnce_score << std::endl;
 		std::cout << "creation order: " << results[i].creation_order << std::endl;
 		std::cout << std::endl;
