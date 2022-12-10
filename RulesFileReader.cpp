@@ -5,7 +5,7 @@
 
 RulesFileReader::RulesFileReader(char const* file_path) {
 	//initialize data_set
-	betweenness_data_set = NULL;
+	betweenness_data_set = NULL; 
 
 	rules_file.open(file_path);
 	if (!rules_file.is_open()) {
@@ -15,15 +15,7 @@ RulesFileReader::RulesFileReader(char const* file_path) {
 	}
 }
 
-void RulesFileReader::allocateRulesBuffer() {
-	betweenness_data_set = new int* [RULES_COUNT];
-
-	for (int i = 0; i < RULES_COUNT; ++i) {
-		betweenness_data_set[i] = new int[3];
-	}
-}
-
-void RulesFileReader::deallocateRulesBuffer() {
+void RulesFileReader::close() {
 	if (!betweenness_data_set)
 		return;
 
@@ -34,7 +26,17 @@ void RulesFileReader::deallocateRulesBuffer() {
 
 	//set it back to default state
 	betweenness_data_set = NULL;
+	rules_file.close();
 }
+
+void RulesFileReader::allocateRulesBuffer() {
+	betweenness_data_set = new int* [RULES_COUNT];
+
+	for (int i = 0; i < RULES_COUNT; ++i) {
+		betweenness_data_set[i] = new int[3];
+	}
+}
+
 
 void RulesFileReader::printRules(int** betweenness_data_set) {
 	if (!betweenness_data_set) {

@@ -6,8 +6,9 @@
 #include "MatchEngine.h"
 
 struct PackedData {
-	int** rules_addr;
 	SequenceDetails* sequence_details_addr;
+	int** rules_addr;
+	int iteration;
 };
 
 DWORD WINAPI calculateBetweenness(LPVOID Param)
@@ -17,20 +18,19 @@ DWORD WINAPI calculateBetweenness(LPVOID Param)
 
 	auto sequence_generator = SequenceGenerator();
 	auto match_engine = MatchEngine();
-	for (int i = 0; i < 100000; ++i)
+	for (int i = 0; i < global_data->iteration; ++i)
 	{
 		int* sg = sequence_generator.shuffleSequence();
-		//free memory in matchAgainst method function
 		match_engine.matchAgainst(sg, global_data->rules_addr);
 	}
 
 	for (int i = 0; i < cpu_count; ++i) {
 		if (global_data->sequence_details_addr[i].threadID == GetCurrentThreadId()) {
 			global_data->sequence_details_addr[i].sequnce_score = match_engine.maximum_score;
-			for (int j = 0; j < 100; ++j) {
+			for (int j = 0; j < SEQUENCE_SIZE; ++j) {
 				global_data->sequence_details_addr[i].sequence_addr[j] = match_engine.best_sequence[j];
 			}
-			//don't need best_sequence anymore since we copied it
+			//don't invade other cpu cores space
 			break;
 		}
 	}
@@ -47,19 +47,16 @@ int main()
 
 	auto results = new SequenceDetails[cpu_count];
 
-	if (!results) {
-		std::cerr << "couldn't make results shared memory...";
-		return 1;
-	}
 
 	PackedData* packed_data = new PackedData;
 	packed_data->rules_addr = rules_dataset;
 	packed_data->sequence_details_addr = results;
+	packed_data->iteration = 100000;
 
 	for (int i = 0; i < cpu_count; ++i) {
 		// Start the child process.
 		hThreadArray[i] = CreateThread(NULL, 0, calculateBetweenness, packed_data, 0, &thread_IDs[i]);
-		if (!hThreadArray)
+		if (!hThreadArray[i])
 		{
 			std::cerr << "Create Process failed at CPU: " << i << std::endl;
 			return 1;
@@ -106,9 +103,9 @@ int main()
 	std::cout << "process ID: " << best->threadID << std::endl;
 	std::cout << "score: " << best->sequnce_score << std::endl;
 	std::cout << "creation order: " << best->creation_order << std::endl;
-	SequenceGenerator::printSequence(best->sequence_addr, 100);
+	SequenceGenerator::printSequence(best->sequence_addr, SEQUENCE_SIZE);
 
-	rules.deallocateRulesBuffer();
+	rules.close();
 	delete[] thread_IDs;
 	delete[] hThreadArray;
 }

@@ -8,10 +8,8 @@ class RulesFileReader
 public:
 	RulesFileReader(char const *);
 	int** parseRules();
-	int* allocateSharedWindowsMemory();
 	static void printRules(int**);
-	static void printRulesOneDimension(int*);
-	void deallocateRulesBuffer();
+	void close();
 
 private:
 	void allocateRulesBuffer();

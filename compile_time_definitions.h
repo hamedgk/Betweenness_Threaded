@@ -7,3 +7,7 @@
 #ifndef RULES_PATH
 #define RULES_PATH ".\\dataset\\rules_dataset.txt"
 #endif // !RULES_PATH
+
+#ifndef SEQUENCE_SIZE
+#define SEQUENCE_SIZE 100
+#endif // !SEQUENCE_SIZE

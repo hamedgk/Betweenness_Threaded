@@ -11,7 +11,7 @@ private:
 
 public:
 	std::size_t maximum_score;
-	int best_sequence[100];
+	int best_sequence[SEQUENCE_SIZE];
 	MatchEngine();
 	void matchAgainst(int*, int**);
 	void overwriteMaximum(int*, std::size_t);
